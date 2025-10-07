@@ -1,0 +1,5 @@
+{
+  "name": "WhatsApp Direct Sender",
+  "description": "An application to manage and open WhatsApp chats for a list of mobile numbers. Import a list of numbers, click one to open the chat, and it will be moved to a 'Completed' list.",
+  "requestFramePermissions": []
+}
