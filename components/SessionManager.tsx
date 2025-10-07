@@ -7,6 +7,7 @@ interface SessionManagerProps {
   onStart: () => void;
   onNext: () => void;
   onStop: () => void;
+  onResend: () => void;
   pendingCount: number;
   completedCount: number;
   totalCount: number;
@@ -19,6 +20,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   onStart,
   onNext,
   onStop,
+  onResend,
   pendingCount,
   completedCount,
   totalCount,
@@ -109,6 +111,13 @@ const SessionManager: React.FC<SessionManagerProps> = ({
               className="bg-purple-600 text-white font-bold py-3 px-6 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-500 transition-colors duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed text-lg"
             >
               Auto Mode ({delay}s)
+            </button>
+            <button 
+              onClick={onResend} 
+              disabled={completedCount === 0}
+              className="bg-orange-600 text-white font-bold py-3 px-6 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 transition-colors duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed text-lg"
+            >
+              Resend All
             </button>
           </>
         )}

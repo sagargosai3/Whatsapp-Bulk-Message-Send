@@ -30,6 +30,11 @@ const App: React.FC = () => {
     setPendingNumbers(prev => prev.filter(num => num !== numberToProcess));
     setCompletedNumbers(prev => [...prev, numberToProcess]);
   }, [message]);
+
+  const resendToCompleted = useCallback(() => {
+    setPendingNumbers(prev => [...prev, ...completedNumbers]);
+    setCompletedNumbers([]);
+  }, [completedNumbers]);
   
   // Manual click handler
   const handleNumberSelect = useCallback((selectedNumber: string) => {
@@ -81,6 +86,7 @@ const App: React.FC = () => {
                 onStart={handleStartSession}
                 onNext={handleProcessNextNumber}
                 onStop={handleStopSession}
+                onResend={resendToCompleted}
                 pendingCount={pendingNumbers.length}
                 completedCount={completedNumbers.length}
                 totalCount={pendingNumbers.length + completedNumbers.length}
