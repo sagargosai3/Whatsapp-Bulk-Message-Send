@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import NumberImporter from './components/NumberImporter';
 import NumberList from './components/NumberList';
 import SessionManager from './components/SessionManager';
+import { ZohoIntegration } from './utils/zohoIntegration';
 
 const App: React.FC = () => {
   const [pendingNumbers, setPendingNumbers] = useState<string[]>([]);
@@ -9,6 +10,11 @@ const App: React.FC = () => {
   const [message, setMessage] = useState('');
   const [batchSize, setBatchSize] = useState(10);
   const [currentBatch, setCurrentBatch] = useState(0);
+  
+  // Zoho CRM Integration
+  const [zohoToken, setZohoToken] = useState('');
+  const [zohoOrgId, setZohoOrgId] = useState('');
+  const [zohoEnabled, setZohoEnabled] = useState(false);
 
   // Simplified Session State
   const [sessionState, setSessionState] = useState<'idle' | 'running'>('idle');
@@ -20,7 +26,7 @@ const App: React.FC = () => {
     setPendingNumbers(prev => [...prev, ...newNumbers]);
   }, [pendingNumbers, completedNumbers]);
 
-  const processNumber = useCallback((numberToProcess: string) => {
+  const processNumber = useCallback(async (numberToProcess: string) => {
     const sanitizedNumber = numberToProcess.replace(/[^0-9+]/g, '');
     const encodedMessage = encodeURIComponent(message);
     const url = message.trim()
@@ -31,7 +37,20 @@ const App: React.FC = () => {
     
     setPendingNumbers(prev => prev.filter(num => num !== numberToProcess));
     setCompletedNumbers(prev => [...prev, numberToProcess]);
-  }, [message]);
+    
+    // Update Zoho CRM if enabled
+    if (zohoEnabled && zohoToken && zohoOrgId) {
+      try {
+        const zoho = new ZohoIntegration({
+          accessToken: zohoToken,
+          organizationId: zohoOrgId
+        });
+        await zoho.updateContactPC(numberToProcess);
+      } catch (error) {
+        console.error('Failed to update Zoho CRM:', error);
+      }
+    }
+  }, [message, zohoEnabled, zohoToken, zohoOrgId]);
 
   const resendToCompleted = useCallback(() => {
     setPendingNumbers(prev => [...prev, ...completedNumbers]);
@@ -105,6 +124,12 @@ const App: React.FC = () => {
                 batchSize={batchSize}
                 setBatchSize={setBatchSize}
                 currentBatch={currentBatch}
+                zohoToken={zohoToken}
+                setZohoToken={setZohoToken}
+                zohoOrgId={zohoOrgId}
+                setZohoOrgId={setZohoOrgId}
+                zohoEnabled={zohoEnabled}
+                setZohoEnabled={setZohoEnabled}
                 pendingCount={pendingNumbers.length}
                 completedCount={completedNumbers.length}
                 totalCount={pendingNumbers.length + completedNumbers.length}
