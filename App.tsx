@@ -65,11 +65,20 @@ const App: React.FC = () => {
       try {
         console.log('🚀 Starting Deluge webhook for:', numberToProcess);
         const cleanNumber = numberToProcess.replace(/[^0-9+]/g, '');
-        const webhookUrl = `${delugeWebhookUrl}&phoneNumber=${encodeURIComponent(cleanNumber)}`;
         
-        const response = await fetch(webhookUrl, { method: 'GET' });
+        const response = await fetch(delugeWebhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phoneNumber: cleanNumber
+          })
+        });
+        
         if (response.ok) {
-          console.log('✅ Deluge webhook successful for:', numberToProcess);
+          const result = await response.text();
+          console.log('✅ Deluge webhook successful:', result);
         } else {
           console.log('⚠️ Deluge webhook failed:', response.status);
         }
