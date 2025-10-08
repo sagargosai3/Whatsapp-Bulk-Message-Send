@@ -7,6 +7,8 @@ const App: React.FC = () => {
   const [pendingNumbers, setPendingNumbers] = useState<string[]>([]);
   const [completedNumbers, setCompletedNumbers] = useState<string[]>([]);
   const [message, setMessage] = useState('');
+  const [batchSize, setBatchSize] = useState(10);
+  const [currentBatch, setCurrentBatch] = useState(0);
 
   // Simplified Session State
   const [sessionState, setSessionState] = useState<'idle' | 'running'>('idle');
@@ -47,6 +49,7 @@ const App: React.FC = () => {
   const handleStartSession = () => {
       if (pendingNumbers.length > 0) {
           setSessionState('running');
+          setCurrentBatch(1);
           processNumber(pendingNumbers[0]);
       }
   };
@@ -54,14 +57,26 @@ const App: React.FC = () => {
   const handleProcessNextNumber = () => {
     if (pendingNumbers.length > 0) {
       processNumber(pendingNumbers[0]);
+      
+      // Check if batch is complete
+      if (currentBatch >= batchSize) {
+        handleStopSession();
+        return;
+      }
+      
+      setCurrentBatch(prev => prev + 1);
     }
-    // If the last number was just processed, the list will be empty now.
+    
+    // If no more numbers, stop session
     if (pendingNumbers.length <= 1) { 
         handleStopSession();
     }
   }
 
-  const handleStopSession = () => setSessionState('idle');
+  const handleStopSession = () => {
+    setSessionState('idle');
+    setCurrentBatch(0);
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-gray-100 font-sans p-4 sm:p-6 lg:p-8">
@@ -87,6 +102,9 @@ const App: React.FC = () => {
                 onNext={handleProcessNextNumber}
                 onStop={handleStopSession}
                 onResend={resendToCompleted}
+                batchSize={batchSize}
+                setBatchSize={setBatchSize}
+                currentBatch={currentBatch}
                 pendingCount={pendingNumbers.length}
                 completedCount={completedNumbers.length}
                 totalCount={pendingNumbers.length + completedNumbers.length}

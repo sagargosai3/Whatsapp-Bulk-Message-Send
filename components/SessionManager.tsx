@@ -8,6 +8,9 @@ interface SessionManagerProps {
   onNext: () => void;
   onStop: () => void;
   onResend: () => void;
+  batchSize: number;
+  setBatchSize: (size: number) => void;
+  currentBatch: number;
   pendingCount: number;
   completedCount: number;
   totalCount: number;
@@ -21,6 +24,9 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   onNext,
   onStop,
   onResend,
+  batchSize,
+  setBatchSize,
+  currentBatch,
   pendingCount,
   completedCount,
   totalCount,
@@ -77,21 +83,41 @@ const SessionManager: React.FC<SessionManagerProps> = ({
         />
       </div>
 
-      {/* Auto Mode Delay */}
-      <div className="mb-4">
-        <label htmlFor="delay-input" className="block text-sm font-medium text-slate-300 mb-1">
-          Auto Delay Between Messages (seconds)
-        </label>
-        <input
-          id="delay-input"
-          type="number"
-          min="1"
-          max="60"
-          value={delay}
-          onChange={(e) => setDelay(Number(e.target.value))}
-          className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
-          disabled={isSessionActive}
-        />
+      {/* Batch Size and Auto Delay */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label htmlFor="batch-input" className="block text-sm font-medium text-slate-300 mb-1">
+            Batch Size
+          </label>
+          <select
+            id="batch-input"
+            value={batchSize}
+            onChange={(e) => setBatchSize(Number(e.target.value))}
+            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
+            disabled={isSessionActive}
+          >
+            <option value={10}>10 contacts</option>
+            <option value={20}>20 contacts</option>
+            <option value={50}>50 contacts</option>
+            <option value={100}>100 contacts</option>
+            <option value={200}>200 contacts</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="delay-input" className="block text-sm font-medium text-slate-300 mb-1">
+            Auto Delay (seconds)
+          </label>
+          <input
+            id="delay-input"
+            type="number"
+            min="1"
+            max="60"
+            value={delay}
+            onChange={(e) => setDelay(Number(e.target.value))}
+            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
+            disabled={isSessionActive}
+          />
+        </div>
       </div>
       
       {/* Action Buttons */}
@@ -155,9 +181,16 @@ const SessionManager: React.FC<SessionManagerProps> = ({
       )}
 
       {totalCount > 0 && sessionState !== 'idle' && (
-          <div className="mt-4">
+          <div className="mt-4 space-y-3">
               <div className="flex justify-between mb-1">
-                  <span className="text-base font-medium text-slate-300">Progress</span>
+                  <span className="text-base font-medium text-slate-300">Batch Progress</span>
+                  <span className="text-sm font-medium text-slate-300">{currentBatch} / {batchSize}</span>
+              </div>
+              <div className="w-full bg-slate-700 rounded-full h-2.5">
+                  <div className="bg-purple-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${(currentBatch / batchSize) * 100}%` }}></div>
+              </div>
+              <div className="flex justify-between mb-1">
+                  <span className="text-base font-medium text-slate-300">Total Progress</span>
                   <span className="text-sm font-medium text-slate-300">{completedCount} / {totalCount}</span>
               </div>
               <div className="w-full bg-slate-700 rounded-full h-2.5">
