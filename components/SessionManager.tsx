@@ -8,6 +8,7 @@ interface SessionManagerProps {
   onNext: () => void;
   onStop: () => void;
   onResend: () => void;
+  onExportCSV: () => void;
   batchSize: number;
   setBatchSize: (size: number) => void;
   currentBatch: number;
@@ -30,6 +31,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   onNext,
   onStop,
   onResend,
+  onExportCSV,
   batchSize,
   setBatchSize,
   currentBatch,
@@ -95,33 +97,122 @@ const SessionManager: React.FC<SessionManagerProps> = ({
         />
       </div>
 
-      {/* Zoho CRM Integration */}
+      {/* CRM Integration Methods */}
       <div className="mb-4 p-4 bg-slate-700 rounded-md">
-        <h3 className="text-lg font-medium text-slate-200 mb-3">Zoho CRM Integration</h3>
-        <div>
-          <label htmlFor="zoho-token" className="block text-sm font-medium text-slate-300 mb-1">
-            Zoho Access Token
-          </label>
-          <input
-            id="zoho-token"
-            type="password"
-            value={zohoToken}
-            onChange={(e) => setZohoToken(e.target.value)}
-            placeholder="Enter your Zoho access token"
-            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
-          />
+        <h3 className="text-lg font-medium text-slate-200 mb-3">CRM Integration Options</h3>
+        
+        {/* Method Selection */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-slate-300 mb-2">Choose Integration Method:</label>
+          <div className="space-y-2">
+            <label className="flex items-center">
+              <input 
+                type="radio" 
+                name="crmMethod" 
+                value="api" 
+                className="mr-2" 
+                onChange={() => {
+                  document.getElementById('api-method')?.classList.remove('hidden');
+                  document.getElementById('csv-method')?.classList.add('hidden');
+                  document.getElementById('webhook-method')?.classList.add('hidden');
+                }}
+              />
+              <span className="text-slate-300">API Integration (Auto-update)</span>
+            </label>
+            <label className="flex items-center">
+              <input 
+                type="radio" 
+                name="crmMethod" 
+                value="csv" 
+                className="mr-2" 
+                defaultChecked
+                onChange={() => {
+                  document.getElementById('api-method')?.classList.add('hidden');
+                  document.getElementById('csv-method')?.classList.remove('hidden');
+                  document.getElementById('webhook-method')?.classList.add('hidden');
+                }}
+              />
+              <span className="text-slate-300">CSV Export (Manual import to Zoho)</span>
+            </label>
+            <label className="flex items-center">
+              <input 
+                type="radio" 
+                name="crmMethod" 
+                value="webhook" 
+                className="mr-2"
+                onChange={() => {
+                  document.getElementById('api-method')?.classList.add('hidden');
+                  document.getElementById('csv-method')?.classList.add('hidden');
+                  document.getElementById('webhook-method')?.classList.remove('hidden');
+                }}
+              />
+              <span className="text-slate-300">Webhook (Send to your server)</span>
+            </label>
+          </div>
         </div>
-        <div className="mt-3 flex items-center">
-          <input
-            id="enable-zoho"
-            type="checkbox"
-            checked={zohoEnabled}
-            onChange={(e) => setZohoEnabled(e.target.checked)}
-            className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600 rounded bg-slate-900"
-          />
-          <label htmlFor="enable-zoho" className="ml-2 text-sm text-slate-300">
-            Auto-update PC field in Zoho CRM when message is completed
-          </label>
+
+        {/* API Method */}
+        <div id="api-method" className="hidden">
+          <div className="mb-3">
+            <label htmlFor="zoho-token" className="block text-sm font-medium text-slate-300 mb-1">
+              Zoho Access Token
+            </label>
+            <input
+              id="zoho-token"
+              type="password"
+              value={zohoToken}
+              onChange={(e) => setZohoToken(e.target.value)}
+              placeholder="Enter your Zoho access token"
+              className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              id="enable-zoho-api"
+              type="checkbox"
+              checked={zohoEnabled}
+              onChange={(e) => setZohoEnabled(e.target.checked)}
+              className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600 rounded bg-slate-900"
+            />
+            <label htmlFor="enable-zoho-api" className="ml-2 text-sm text-slate-300">
+              Enable auto-update PC field in Zoho CRM
+            </label>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">
+            ✅ Real-time updates • ⚡ Automatic • 🔒 Secure
+          </p>
+        </div>
+
+        {/* CSV Method */}
+        <div id="csv-method">
+          <p className="text-sm text-slate-400 mb-2">
+            ✅ Completed numbers will be exported as CSV. Import this file to Zoho CRM to update PC field.
+          </p>
+          <button 
+            onClick={onExportCSV}
+            disabled={completedCount === 0}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-sm"
+          >
+            Download Completed Numbers CSV ({completedCount})
+          </button>
+        </div>
+
+        {/* Webhook Method */}
+        <div id="webhook-method" className="hidden">
+          <div className="mb-3">
+            <label htmlFor="webhook-url" className="block text-sm font-medium text-slate-300 mb-1">
+              Webhook URL
+            </label>
+            <input
+              id="webhook-url"
+              type="url"
+              placeholder="https://your-server.com/webhook"
+              className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
+            />
+          </div>
+          <p className="text-xs text-slate-400">
+            Sends POST request with completed phone numbers to your server.
+          </p>
         </div>
       </div>
 

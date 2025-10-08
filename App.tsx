@@ -3,6 +3,7 @@ import NumberImporter from './components/NumberImporter';
 import NumberList from './components/NumberList';
 import SessionManager from './components/SessionManager';
 import { ZohoIntegration } from './utils/zohoIntegration';
+import { exportForZohoImport } from './utils/csvExport';
 
 const App: React.FC = () => {
   const [pendingNumbers, setPendingNumbers] = useState<string[]>([]);
@@ -61,6 +62,10 @@ const App: React.FC = () => {
   const resendToCompleted = useCallback(() => {
     setPendingNumbers(prev => [...prev, ...completedNumbers]);
     setCompletedNumbers([]);
+  }, [completedNumbers]);
+
+  const handleExportCSV = useCallback(() => {
+    exportForZohoImport(completedNumbers);
   }, [completedNumbers]);
   
   // Manual click handler
@@ -127,6 +132,7 @@ const App: React.FC = () => {
                 onNext={handleProcessNextNumber}
                 onStop={handleStopSession}
                 onResend={resendToCompleted}
+                onExportCSV={handleExportCSV}
                 batchSize={batchSize}
                 setBatchSize={setBatchSize}
                 currentBatch={currentBatch}

@@ -18,41 +18,48 @@ export class ZohoIntegration {
 
   async updateContactPC(phoneNumber: string): Promise<boolean> {
     try {
-      console.log('🔍 Searching for contact:', phoneNumber);
-      const cleanNumber = phoneNumber.replace(/[^0-9+]/g, '');
-      console.log('📱 Clean number:', cleanNumber);
+      console.log('🚀 Starting Zoho update for:', phoneNumber);
       
-      const contact = await this.searchContactByPhone(cleanNumber);
-      console.log('👤 Found contact:', contact);
+      // Try multiple phone number formats
+      const phoneFormats = this.generatePhoneFormats(phoneNumber);
       
-      if (contact) {
-        const result = await this.updateContact(contact.id, { PC: 'Yes' });
-        console.log('✅ Update result:', result);
-        return result;
-      } else {
-        console.log('❌ No contact found for:', cleanNumber);
-        // Try alternative search patterns
-        const alternatives = [
-          cleanNumber.replace(/^\+91/, ''),  // Remove +91
-          cleanNumber.replace(/^91/, ''),    // Remove 91
-          '+91' + cleanNumber.replace(/^\+?91?/, '') // Add +91
-        ];
+      for (const format of phoneFormats) {
+        console.log('🔍 Searching with format:', format);
+        const contact = await this.searchContactByPhone(format);
         
-        for (const altNumber of alternatives) {
-          console.log('🔄 Trying alternative:', altNumber);
-          const altContact = await this.searchContactByPhone(altNumber);
-          if (altContact) {
-            console.log('✅ Found with alternative:', altNumber);
-            return await this.updateContact(altContact.id, { PC: 'Yes' });
-          }
+        if (contact) {
+          console.log('✅ Found contact:', contact.id);
+          const result = await this.updateContact(contact.id, { PC: 'Yes' });
+          console.log('✅ Update successful:', result);
+          return result;
         }
       }
       
+      console.log('⚠️ No contact found for any format of:', phoneNumber);
       return false;
     } catch (error) {
-      console.error('❌ Zoho integration error:', error);
+      console.error('❌ Zoho error:', error);
       return false;
     }
+  }
+
+  private generatePhoneFormats(phoneNumber: string): string[] {
+    const clean = phoneNumber.replace(/[^0-9+]/g, '');
+    const formats = [clean];
+    
+    // Add common Indian formats
+    if (clean.startsWith('+91')) {
+      formats.push(clean.substring(3)); // Remove +91
+      formats.push('91' + clean.substring(3)); // 91xxxxxxxxxx
+    } else if (clean.startsWith('91') && clean.length === 12) {
+      formats.push('+91' + clean.substring(2)); // +91xxxxxxxxxx
+      formats.push(clean.substring(2)); // xxxxxxxxxx
+    } else if (clean.length === 10) {
+      formats.push('+91' + clean); // +91xxxxxxxxxx
+      formats.push('91' + clean); // 91xxxxxxxxxx
+    }
+    
+    return [...new Set(formats)];
   }
 
   private async searchContactByPhone(phoneNumber: string): Promise<Contact | null> {
