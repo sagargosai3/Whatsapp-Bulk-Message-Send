@@ -98,33 +98,18 @@ const SessionManager: React.FC<SessionManagerProps> = ({
       {/* Zoho CRM Integration */}
       <div className="mb-4 p-4 bg-slate-700 rounded-md">
         <h3 className="text-lg font-medium text-slate-200 mb-3">Zoho CRM Integration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="zoho-token" className="block text-sm font-medium text-slate-300 mb-1">
-              Zoho Access Token
-            </label>
-            <input
-              id="zoho-token"
-              type="password"
-              value={zohoToken}
-              onChange={(e) => setZohoToken(e.target.value)}
-              placeholder="Enter your Zoho access token"
-              className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
-            />
-          </div>
-          <div>
-            <label htmlFor="zoho-org" className="block text-sm font-medium text-slate-300 mb-1">
-              Organization ID
-            </label>
-            <input
-              id="zoho-org"
-              type="text"
-              value={zohoOrgId}
-              onChange={(e) => setZohoOrgId(e.target.value)}
-              placeholder="Your Zoho org ID"
-              className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
-            />
-          </div>
+        <div>
+          <label htmlFor="zoho-token" className="block text-sm font-medium text-slate-300 mb-1">
+            Zoho Access Token
+          </label>
+          <input
+            id="zoho-token"
+            type="password"
+            value={zohoToken}
+            onChange={(e) => setZohoToken(e.target.value)}
+            placeholder="Enter your Zoho access token"
+            className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
+          />
         </div>
         <div className="mt-3 flex items-center">
           <input

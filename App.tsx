@@ -39,11 +39,11 @@ const App: React.FC = () => {
     setCompletedNumbers(prev => [...prev, numberToProcess]);
     
     // Update Zoho CRM if enabled
-    if (zohoEnabled && zohoToken && zohoOrgId) {
+    if (zohoEnabled && zohoToken) {
       try {
         const zoho = new ZohoIntegration({
           accessToken: zohoToken,
-          organizationId: zohoOrgId
+          organizationId: ''
         });
         await zoho.updateContactPC(numberToProcess);
       } catch (error) {
