@@ -78,6 +78,12 @@ export class ZohoIntegration {
     const data = await response.json();
     console.log('📊 Response data:', data);
 
+    if (response.status === 401) {
+      console.error('❌ TOKEN EXPIRED OR INVALID!');
+      console.error('⚠️ Please generate a new access token from Zoho API Console');
+      throw new Error('Access token expired. Please generate a new token.');
+    }
+
     if (response.ok && data.data && data.data.length > 0) {
       return data.data[0];
     }
