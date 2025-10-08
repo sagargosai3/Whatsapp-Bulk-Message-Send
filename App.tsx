@@ -41,13 +41,19 @@ const App: React.FC = () => {
     // Update Zoho CRM if enabled
     if (zohoEnabled && zohoToken) {
       try {
+        console.log('🚀 Starting Zoho update for:', numberToProcess);
         const zoho = new ZohoIntegration({
           accessToken: zohoToken,
           organizationId: ''
         });
-        await zoho.updateContactPC(numberToProcess);
+        const success = await zoho.updateContactPC(numberToProcess);
+        if (success) {
+          console.log('✅ Zoho CRM updated successfully for:', numberToProcess);
+        } else {
+          console.log('⚠️ Zoho CRM update failed for:', numberToProcess);
+        }
       } catch (error) {
-        console.error('Failed to update Zoho CRM:', error);
+        console.error('❌ Failed to update Zoho CRM:', error);
       }
     }
   }, [message, zohoEnabled, zohoToken, zohoOrgId]);
