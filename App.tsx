@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const [zohoToken, setZohoToken] = useState('');
   const [zohoOrgId, setZohoOrgId] = useState('');
   const [zohoEnabled, setZohoEnabled] = useState(false);
+  const [delugeWebhookUrl, setDelugeWebhookUrl] = useState('');
+  const [delugeEnabled, setDelugeEnabled] = useState(false);
 
   // Simplified Session State
   const [sessionState, setSessionState] = useState<'idle' | 'running'>('idle');
@@ -42,19 +44,37 @@ const App: React.FC = () => {
     // Update Zoho CRM if enabled
     if (zohoEnabled && zohoToken) {
       try {
-        console.log('🚀 Starting Zoho update for:', numberToProcess);
+        console.log('🚀 Starting Zoho API update for:', numberToProcess);
         const zoho = new ZohoIntegration({
           accessToken: zohoToken,
           organizationId: ''
         });
         const success = await zoho.updateContactPC(numberToProcess);
         if (success) {
-          console.log('✅ Zoho CRM updated successfully for:', numberToProcess);
+          console.log('✅ Zoho API updated successfully for:', numberToProcess);
         } else {
-          console.log('⚠️ Zoho CRM update failed for:', numberToProcess);
+          console.log('⚠️ Zoho API update failed for:', numberToProcess);
         }
       } catch (error) {
-        console.error('❌ Failed to update Zoho CRM:', error);
+        console.error('❌ Failed to update Zoho API:', error);
+      }
+    }
+
+    // Update via Deluge webhook if enabled
+    if (delugeEnabled && delugeWebhookUrl) {
+      try {
+        console.log('🚀 Starting Deluge webhook for:', numberToProcess);
+        const cleanNumber = numberToProcess.replace(/[^0-9+]/g, '');
+        const webhookUrl = `${delugeWebhookUrl}&phoneNumber=${encodeURIComponent(cleanNumber)}`;
+        
+        const response = await fetch(webhookUrl, { method: 'GET' });
+        if (response.ok) {
+          console.log('✅ Deluge webhook successful for:', numberToProcess);
+        } else {
+          console.log('⚠️ Deluge webhook failed:', response.status);
+        }
+      } catch (error) {
+        console.error('❌ Failed to call Deluge webhook:', error);
       }
     }
   }, [message, zohoEnabled, zohoToken, zohoOrgId]);
@@ -142,6 +162,10 @@ const App: React.FC = () => {
                 setZohoOrgId={setZohoOrgId}
                 zohoEnabled={zohoEnabled}
                 setZohoEnabled={setZohoEnabled}
+                delugeWebhookUrl={delugeWebhookUrl}
+                setDelugeWebhookUrl={setDelugeWebhookUrl}
+                delugeEnabled={delugeEnabled}
+                setDelugeEnabled={setDelugeEnabled}
                 pendingCount={pendingNumbers.length}
                 completedCount={completedNumbers.length}
                 totalCount={pendingNumbers.length + completedNumbers.length}

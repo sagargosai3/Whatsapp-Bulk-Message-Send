@@ -18,6 +18,10 @@ interface SessionManagerProps {
   setZohoOrgId: (orgId: string) => void;
   zohoEnabled: boolean;
   setZohoEnabled: (enabled: boolean) => void;
+  delugeWebhookUrl: string;
+  setDelugeWebhookUrl: (url: string) => void;
+  delugeEnabled: boolean;
+  setDelugeEnabled: (enabled: boolean) => void;
   pendingCount: number;
   completedCount: number;
   totalCount: number;
@@ -41,6 +45,10 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   setZohoOrgId,
   zohoEnabled,
   setZohoEnabled,
+  delugeWebhookUrl,
+  setDelugeWebhookUrl,
+  delugeEnabled,
+  setDelugeEnabled,
   pendingCount,
   completedCount,
   totalCount,
@@ -153,9 +161,52 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
         {/* API Method */}
         <div id="api-method" className="hidden">
+          <div className="mb-4 p-3 bg-slate-600 rounded">
+            <h4 className="text-sm font-medium text-slate-200 mb-2">Choose Authentication Method:</h4>
+            <div className="space-y-2 text-sm">
+              <div>
+                <strong className="text-green-400">✅ Method 1: Zoho Deluge Function</strong>
+                <p className="text-slate-300">Functions created! Now enter your webhook URL:</p>
+                <input
+                  type="url"
+                  value={delugeWebhookUrl}
+                  onChange={(e) => setDelugeWebhookUrl(e.target.value)}
+                  placeholder="https://www.zohoapis.com/crm/v7/functions/webhookupdatepc/actions/execute?auth_type=apikey&zapikey=..."
+                  className="w-full mt-1 bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 text-xs"
+                />
+                <div className="flex items-center mt-2">
+                  <input
+                    id="enable-deluge"
+                    type="checkbox"
+                    checked={delugeEnabled}
+                    onChange={(e) => setDelugeEnabled(e.target.checked)}
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-slate-600 rounded bg-slate-900"
+                  />
+                  <label htmlFor="enable-deluge" className="ml-2 text-sm text-slate-300">
+                    Enable Deluge webhook integration
+                  </label>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">Copy webhook URL from your Deluge function → REST API</p>
+              </div>
+              
+              <div>
+                <strong className="text-blue-400">Method 2: Zoho Flow Integration</strong>
+                <p className="text-slate-300">Use Zoho Flow to create webhook that updates CRM</p>
+                <a href="https://flow.zoho.com" target="_blank" className="mt-1 inline-block bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">
+                  Open Zoho Flow
+                </a>
+              </div>
+              
+              <div>
+                <strong className="text-purple-400">Method 3: Manual API Token</strong>
+                <p className="text-slate-300">Traditional OAuth token (if you can get it working)</p>
+              </div>
+            </div>
+          </div>
+          
           <div className="mb-3">
             <label htmlFor="zoho-token" className="block text-sm font-medium text-slate-300 mb-1">
-              Zoho Access Token
+              Zoho Access Token (Method 3 only)
             </label>
             <input
               id="zoho-token"
@@ -166,31 +217,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
               className="w-full bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-200"
             />
           </div>
-          <div className="flex items-center gap-4 mb-3">
-            <button
-              onClick={async () => {
-                if (!zohoToken) {
-                  alert('Please enter access token first');
-                  return;
-                }
-                try {
-                  const response = await fetch('https://www.zohoapis.com/crm/v2/Contacts?per_page=1', {
-                    headers: { 'Authorization': `Zoho-oauthtoken ${zohoToken}` }
-                  });
-                  if (response.ok) {
-                    alert('✅ Token is valid!');
-                  } else {
-                    alert(`❌ Token invalid: ${response.status}`);
-                  }
-                } catch (error) {
-                  alert('❌ Connection failed');
-                }
-              }}
-              className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-            >
-              Test Token
-            </button>
-          </div>
+          
           <div className="flex items-center">
             <input
               id="enable-zoho-api"
@@ -200,12 +227,9 @@ const SessionManager: React.FC<SessionManagerProps> = ({
               className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600 rounded bg-slate-900"
             />
             <label htmlFor="enable-zoho-api" className="ml-2 text-sm text-slate-300">
-              Enable auto-update PC field in Zoho CRM
+              Enable integration (Method 3 only)
             </label>
           </div>
-          <p className="text-xs text-slate-400 mt-2">
-            ✅ Real-time updates • ⚡ Automatic • 🔒 Secure
-          </p>
         </div>
 
         {/* CSV Method */}
