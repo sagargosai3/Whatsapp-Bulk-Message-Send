@@ -192,7 +192,8 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                       onClick={async () => {
                         try {
                           console.log('🧪 Testing Deluge webhook...');
-                          const testUrl = `${delugeWebhookUrl}&Mobile=9999999999`;
+                          const cleanUrl = delugeWebhookUrl.replace(/&amp;/g, '&');
+                          const testUrl = `${cleanUrl}&Mobile=9999999999`;
                           const response = await fetch(testUrl, {
                             method: 'POST'
                           });

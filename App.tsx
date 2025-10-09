@@ -73,7 +73,9 @@ const App: React.FC = () => {
         console.log('📞 Sending to webhook:', cleanNumber);
         console.log('🔗 Webhook URL:', delugeWebhookUrl);
         
-        const webhookUrlWithParams = `${delugeWebhookUrl}&Mobile=${encodeURIComponent(cleanNumber)}`;
+        // Fix HTML entities in URL
+        const cleanWebhookUrl = delugeWebhookUrl.replace(/&amp;/g, '&');
+        const webhookUrlWithParams = `${cleanWebhookUrl}&Mobile=${encodeURIComponent(cleanNumber)}`;
         console.log('🔗 Full webhook URL:', webhookUrlWithParams);
         
         const response = await fetch(webhookUrlWithParams, {
