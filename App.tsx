@@ -47,16 +47,20 @@ const App: React.FC = () => {
         console.log('🚀 Starting Zoho API update for:', numberToProcess);
         const zoho = new ZohoIntegration({
           accessToken: zohoToken,
-          organizationId: ''
+          organizationId: zohoOrgId
         });
         const success = await zoho.updateContactPC(numberToProcess);
         if (success) {
           console.log('✅ Zoho API updated successfully for:', numberToProcess);
         } else {
           console.log('⚠️ Zoho API update failed for:', numberToProcess);
+          console.log('💡 Check: 1) Token validity 2) Phone number format 3) Contact exists in CRM');
         }
       } catch (error) {
         console.error('❌ Failed to update Zoho API:', error);
+        if (error.message.includes('token expired')) {
+          console.error('🔑 Please generate a new access token from Zoho API Console');
+        }
       }
     }
 
@@ -66,27 +70,35 @@ const App: React.FC = () => {
         console.log('🚀 Starting Deluge webhook for:', numberToProcess);
         const cleanNumber = numberToProcess.replace(/[^0-9+]/g, '');
         
+        console.log('📞 Sending to webhook:', cleanNumber);
+        console.log('🔗 Webhook URL:', delugeWebhookUrl);
+        
         const response = await fetch(delugeWebhookUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            phoneNumber: cleanNumber
+            Mobile: cleanNumber
           })
         });
+        
+        console.log('📊 Webhook response status:', response.status);
         
         if (response.ok) {
           const result = await response.text();
           console.log('✅ Deluge webhook successful:', result);
         } else {
-          console.log('⚠️ Deluge webhook failed:', response.status);
+          const errorText = await response.text();
+          console.log('⚠️ Deluge webhook failed:', response.status, errorText);
+          console.log('💡 Check: 1) Webhook URL is correct 2) API key is valid 3) Function is published');
         }
       } catch (error) {
         console.error('❌ Failed to call Deluge webhook:', error);
+        console.log('💡 Check: 1) Internet connection 2) CORS settings 3) Webhook URL format');
       }
     }
-  }, [message, zohoEnabled, zohoToken, zohoOrgId]);
+  }, [message, zohoEnabled, zohoToken, zohoOrgId, delugeEnabled, delugeWebhookUrl]);
 
   const resendToCompleted = useCallback(() => {
     setPendingNumbers(prev => [...prev, ...completedNumbers]);

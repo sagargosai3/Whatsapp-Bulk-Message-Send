@@ -174,17 +174,40 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                   placeholder="https://www.zohoapis.com/crm/v7/functions/webhookupdatepc/actions/execute?auth_type=apikey&zapikey=..."
                   className="w-full mt-1 bg-slate-900 border border-slate-600 rounded-md p-2 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 text-xs"
                 />
-                <div className="flex items-center mt-2">
-                  <input
-                    id="enable-deluge"
-                    type="checkbox"
-                    checked={delugeEnabled}
-                    onChange={(e) => setDelugeEnabled(e.target.checked)}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-slate-600 rounded bg-slate-900"
-                  />
-                  <label htmlFor="enable-deluge" className="ml-2 text-sm text-slate-300">
-                    Enable Deluge webhook integration
-                  </label>
+                <div className="space-y-2 mt-2">
+                  <div className="flex items-center">
+                    <input
+                      id="enable-deluge"
+                      type="checkbox"
+                      checked={delugeEnabled}
+                      onChange={(e) => setDelugeEnabled(e.target.checked)}
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-slate-600 rounded bg-slate-900"
+                    />
+                    <label htmlFor="enable-deluge" className="ml-2 text-sm text-slate-300">
+                      Enable Deluge webhook integration
+                    </label>
+                  </div>
+                  {delugeWebhookUrl && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          console.log('🧪 Testing Deluge webhook...');
+                          const response = await fetch(delugeWebhookUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ Mobile: '9999999999' })
+                          });
+                          const result = await response.text();
+                          alert(`${response.ok ? '✅' : '❌'} Status: ${response.status}\nResponse: ${result}`);
+                        } catch (error) {
+                          alert(`❌ Test failed: ${error.message}`);
+                        }
+                      }}
+                      className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700"
+                    >
+                      Test Webhook
+                    </button>
+                  )}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">Copy webhook URL from your Deluge function → REST API</p>
               </div>
@@ -218,17 +241,32 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             />
           </div>
           
-          <div className="flex items-center">
-            <input
-              id="enable-zoho-api"
-              type="checkbox"
-              checked={zohoEnabled}
-              onChange={(e) => setZohoEnabled(e.target.checked)}
-              className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600 rounded bg-slate-900"
-            />
-            <label htmlFor="enable-zoho-api" className="ml-2 text-sm text-slate-300">
-              Enable integration (Method 3 only)
-            </label>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <input
+                id="enable-zoho-api"
+                type="checkbox"
+                checked={zohoEnabled}
+                onChange={(e) => setZohoEnabled(e.target.checked)}
+                className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600 rounded bg-slate-900"
+              />
+              <label htmlFor="enable-zoho-api" className="ml-2 text-sm text-slate-300">
+                Enable integration (Method 3 only)
+              </label>
+            </div>
+            {zohoToken && (
+              <button
+                onClick={async () => {
+                  const { ZohoIntegration } = await import('../utils/zohoIntegration');
+                  const zoho = new ZohoIntegration({ accessToken: zohoToken, organizationId: zohoOrgId });
+                  const result = await zoho.testConnection();
+                  alert(`${result.success ? '✅' : '❌'} ${result.message}`);
+                }}
+                className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+              >
+                Test Connection
+              </button>
+            )}
           </div>
         </div>
 
