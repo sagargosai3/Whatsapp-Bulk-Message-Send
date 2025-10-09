@@ -73,14 +73,11 @@ const App: React.FC = () => {
         console.log('📞 Sending to webhook:', cleanNumber);
         console.log('🔗 Webhook URL:', delugeWebhookUrl);
         
-        const response = await fetch(delugeWebhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            Mobile: cleanNumber
-          })
+        const webhookUrlWithParams = `${delugeWebhookUrl}&Mobile=${encodeURIComponent(cleanNumber)}`;
+        console.log('🔗 Full webhook URL:', webhookUrlWithParams);
+        
+        const response = await fetch(webhookUrlWithParams, {
+          method: 'POST'
         });
         
         console.log('📊 Webhook response status:', response.status);

@@ -192,10 +192,9 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                       onClick={async () => {
                         try {
                           console.log('🧪 Testing Deluge webhook...');
-                          const response = await fetch(delugeWebhookUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ Mobile: '9999999999' })
+                          const testUrl = `${delugeWebhookUrl}&Mobile=9999999999`;
+                          const response = await fetch(testUrl, {
+                            method: 'POST'
                           });
                           const result = await response.text();
                           alert(`${response.ok ? '✅' : '❌'} Status: ${response.status}\nResponse: ${result}`);
